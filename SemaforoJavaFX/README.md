@@ -30,19 +30,19 @@ El plugin `javafx-maven-plugin` usa la clase principal `com.example.semaforo.Tra
    - Pulsa **Iniciar** para arrancar el `Timeline`. Cambia de RED → GREEN → YELLOW en bucle.
    - Ajusta el **Slider** para definir los segundos por estado; el `Timeline` se reconstruye con la nueva duración.
    - Botones **Pausar** y **Reanudar** controlan la animación.
-   - El panel oscuro muestra las tres luces en un contenedor que simula el armazón del semáforo, con la interfaz centrada y un ancho fijo para mantener todo visible.
+   - El panel oscuro muestra las tres luces en un contenedor que simula el armazón del semáforo, con encabezado tipo "hero", badges de tecnologías y fichas informativas del ciclo y del Timeline.
 
 2. **Modo juego (“¡YA!”)**
    - Cuando creas que el semáforo está en verde, pulsa el botón **¡YA!**.
    - `GameLogic` guarda la marca de tiempo del último cambio a verde y calcula la diferencia con el clic.
    - La función pura `calcularPuntaje(long diferenciaMs)` reparte más puntos cuanto menor sea la reacción.
-   - Se muestran aciertos, errores y puntaje acumulado en vivo.
+   - Se muestran aciertos, errores y puntaje acumulado en vivo dentro de tarjetas resumidas.
 
 3. **Programación lógica (LightRules)**
    - Selecciona una acción desde el ComboBox (avanzar, esperar, detenerse, cruzar) y pulsa **Evaluar acción**.
    - `LightRules` usa una base de conocimiento declarativa (`Regla`) y busca con streams la coincidencia de luz + acción; si no existe, devuelve "Desconocido".
    - Se muestran la luz actual, la acción evaluada, el resultado, la descripción de la regla aplicada y un historial (ListView) de inferencias generadas.
-   - El panel lógico incluye el listado completo de reglas visibles y la ventana incorpora scroll para que toda la interfaz sea accesible en pantallas pequeñas.
+   - El panel lógico incluye el listado completo de reglas visibles, tarjetas con detalle de inferencia y un historial destacado sin afectar la simulación ni el modo juego.
 
 ## Dónde se usa programación funcional
 - `TrafficLightLogic#nextState` está implementado con una `UnaryOperator<Light>` que, dada una luz, devuelve siempre la siguiente. Es pura porque no depende de estado global ni produce efectos secundarios.

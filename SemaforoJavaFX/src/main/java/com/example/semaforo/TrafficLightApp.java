@@ -4,17 +4,19 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -67,46 +69,48 @@ public class TrafficLightApp extends Application {
         HBox controlButtons = createControls();
         VBox trafficLightBox = createTrafficLightBox();
 
-        VBox simulationPanel = new VBox(12,
+        VBox simulationPanel = new VBox(14,
                 titledLabel("Simulación"),
+                buildContextRow(),
                 trafficLightBox,
                 sliderLabel,
                 durationSlider,
                 controlButtons,
                 buildStatusRow());
         simulationPanel.getStyleClass().add("panel");
-        simulationPanel.setPrefWidth(420);
+        simulationPanel.setPrefWidth(460);
 
         VBox gamePanel = createGamePanel();
-        gamePanel.setPrefWidth(320);
+        gamePanel.setPrefWidth(340);
         VBox logicPanel = createLogicPanel();
 
         HBox content = new HBox(18, simulationPanel, gamePanel);
         content.setAlignment(Pos.TOP_CENTER);
 
-        VBox rootContent = new VBox(18, titledLabel("Simulador de Semáforo"), content, logicPanel);
-        rootContent.setAlignment(Pos.TOP_CENTER);
-        rootContent.setPadding(new Insets(20));
-        rootContent.setMaxWidth(1180);
+        VBox mainColumn = new VBox(20, createHero(), content, logicPanel);
+        mainColumn.setAlignment(Pos.TOP_CENTER);
+        mainColumn.setPadding(new Insets(26));
+        mainColumn.setMaxWidth(1240);
 
-        VBox root = new VBox(rootContent);
-        root.setAlignment(Pos.TOP_CENTER);
-        root.setPadding(new Insets(24));
+        VBox centerWrapper = new VBox(mainColumn);
+        centerWrapper.setAlignment(Pos.TOP_CENTER);
+        centerWrapper.setPadding(new Insets(16));
 
-        var scrollPane = new javafx.scene.control.ScrollPane(root);
+        ScrollPane scrollPane = new ScrollPane(centerWrapper);
         scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
         scrollPane.setPadding(new Insets(0));
-        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.getStyleClass().add("app-scroll");
 
-        Scene scene = new Scene(scrollPane, 1220, 780);
+        Scene scene = new Scene(scrollPane, 1240, 820);
         scene.setFill(Color.web("#0f1116"));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style.css")).toExternalForm());
 
         stage.setTitle("Simulador de Semáforo");
         stage.setScene(scene);
+        stage.setMinWidth(1100);
+        stage.setMinHeight(760);
         stage.show();
 
         configureTimeline();
@@ -114,6 +118,23 @@ public class TrafficLightApp extends Application {
         updateStatus();
         updateScoreLabels();
         actualizarRegla();
+    }
+
+    private VBox createHero() {
+        Label title = titledLabel("Simulador de Semáforo");
+        Label subtitle = new Label("Simulación, lógica declarativa y mini-juego de reacción en una sola interfaz moderna.");
+        subtitle.getStyleClass().add("subtitle");
+
+        HBox badges = new HBox(10,
+                badge("Programación funcional"),
+                badge("Programación lógica"),
+                badge("JavaFX UI"));
+        badges.setAlignment(Pos.CENTER_LEFT);
+
+        VBox hero = new VBox(10, title, subtitle, badges);
+        hero.getStyleClass().add("hero");
+        hero.setAlignment(Pos.CENTER_LEFT);
+        return hero;
     }
 
     private VBox createTrafficLightBox() {
@@ -127,6 +148,18 @@ public class TrafficLightApp extends Application {
         return container;
     }
 
+    private HBox buildContextRow() {
+        Label cycleInfo = new Label("Ciclo RED → GREEN → YELLOW");
+        cycleInfo.getStyleClass().add("stat-chip");
+
+        Label modeInfo = new Label("Cronometrado con Timeline");
+        modeInfo.getStyleClass().add("stat-chip");
+
+        HBox row = new HBox(10, cycleInfo, modeInfo);
+        row.setAlignment(Pos.CENTER_LEFT);
+        return row;
+    }
+
     private VBox createGamePanel() {
         Button reactionButton = new Button("¡YA!");
         reactionButton.getStyleClass().add("primary-button");
@@ -137,13 +170,17 @@ public class TrafficLightApp extends Application {
         erroresLabel = new Label();
         puntajeLabel = new Label();
 
+        VBox statsRow = new VBox(6,
+                labeledValue("Aciertos", aciertosLabel),
+                labeledValue("Errores", erroresLabel),
+                labeledValue("Puntaje", puntajeLabel));
+        statsRow.getStyleClass().add("info-box");
+
         VBox gamePanel = new VBox(10,
                 titledLabel("Modo Juego"),
                 juegoLabel,
                 reactionButton,
-                aciertosLabel,
-                erroresLabel,
-                puntajeLabel);
+                statsRow);
         gamePanel.getStyleClass().add("panel");
         gamePanel.setAlignment(Pos.TOP_CENTER);
         return gamePanel;
@@ -165,11 +202,11 @@ public class TrafficLightApp extends Application {
         logicRuleLabel = new Label();
 
         VBox knowledgeBox = new VBox(6);
-        knowledgeBox.getChildren().add(new Label("Base de conocimiento declarativa:"));
+        knowledgeBox.getChildren().add(new Label("Base de conocimiento declarativa"));
         lightRules.getReglas().forEach(regla -> knowledgeBox.getChildren().add(new Label(
                 regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado())));
         knowledgeBox.getStyleClass().add("knowledge-box");
-        knowledgeBox.setPrefWidth(320);
+        knowledgeBox.setPrefWidth(340);
 
         VBox resumenBox = new VBox(6,
                 new Label("Detalle de inferencia"),
@@ -178,7 +215,7 @@ public class TrafficLightApp extends Application {
                 logicResultLabel,
                 logicRuleLabel);
         resumenBox.getStyleClass().add("info-box");
-        resumenBox.setPrefWidth(320);
+        resumenBox.setPrefWidth(340);
 
         VBox accionBox = new VBox(6,
                 new Label("Acción"),
@@ -186,15 +223,17 @@ public class TrafficLightApp extends Application {
                 evaluarButton);
         accionBox.setAlignment(Pos.CENTER_LEFT);
         accionBox.getStyleClass().add("info-box");
-        accionBox.setPrefWidth(260);
+        accionBox.setPrefWidth(240);
 
         ListView<String> historialListView = new ListView<>(historialInferencias);
         historialListView.setPrefHeight(160);
+        VBox.setVgrow(historialListView, Priority.ALWAYS);
 
         HBox infoRow = new HBox(16, knowledgeBox, resumenBox, accionBox);
         infoRow.setAlignment(Pos.CENTER_LEFT);
+        infoRow.setFillHeight(true);
 
-        VBox logicPanel = new VBox(14,
+        VBox logicPanel = new VBox(16,
                 titledLabel("Programación lógica"),
                 infoRow,
                 new Label("Historial de inferencias"),
@@ -363,5 +402,18 @@ public class TrafficLightApp extends Application {
         Label label = new Label(text);
         label.getStyleClass().add("heading");
         return label;
+    }
+
+    private VBox labeledValue(String labelText, Label valueLabel) {
+        Label label = new Label(labelText);
+        label.getStyleClass().add("caption");
+        valueLabel.getStyleClass().add("value");
+        return new VBox(2, label, valueLabel);
+    }
+
+    private Label badge(String text) {
+        Label badge = new Label(text);
+        badge.getStyleClass().add("badge");
+        return badge;
     }
 }
