@@ -222,8 +222,6 @@ public class TrafficLightApp extends Application {
         logicActionLabel.getStyleClass().add("value");
         logicResultLabel.getStyleClass().add("value");
         logicRuleLabel.getStyleClass().add("value");
-        logicRuleLabel.setWrapText(true);
-        logicRuleLabel.setMaxWidth(320);
 
         ObservableList<String> conocimiento = FXCollections.observableArrayList();
         lightRules.getReglas().forEach(regla -> conocimiento.add(
@@ -231,13 +229,17 @@ public class TrafficLightApp extends Application {
                         + " — " + regla.descripcion()));
 
         ListView<String> knowledgeListView = createWrappedListView(conocimiento);
-        knowledgeListView.setPrefHeight(220);
+        knowledgeListView.setPrefHeight(240);
+        knowledgeListView.setMinHeight(180);
+        knowledgeListView.setPlaceholder(new Label("Sin reglas cargadas"));
 
         VBox knowledgeBox = new VBox(8,
                 new Label("Base de conocimiento declarativa"),
                 knowledgeListView);
         knowledgeBox.getStyleClass().add("knowledge-box");
-        knowledgeBox.setPrefWidth(360);
+        knowledgeBox.setPrefWidth(420);
+        knowledgeBox.setMinWidth(360);
+        knowledgeBox.setMaxWidth(520);
 
         GridPane detalleGrid = new GridPane();
         detalleGrid.setHgap(12);
@@ -256,7 +258,9 @@ public class TrafficLightApp extends Application {
                 new Label("Detalle de inferencia"),
                 detalleGrid);
         resumenBox.getStyleClass().add("info-box");
-        resumenBox.setPrefWidth(380);
+        resumenBox.setPrefWidth(420);
+        resumenBox.setMinWidth(360);
+        resumenBox.setMaxWidth(520);
 
         VBox accionBox = new VBox(10,
                 new Label("Acción"),
@@ -265,14 +269,25 @@ public class TrafficLightApp extends Application {
         accionBox.setAlignment(Pos.CENTER_LEFT);
         accionBox.getStyleClass().add("info-box");
         accionBox.setPrefWidth(240);
+        accionBox.setMinWidth(220);
+        accionBox.setMaxWidth(320);
 
         ListView<String> historialListView = createWrappedListView(historialInferencias);
-        historialListView.setPrefHeight(200);
+        historialListView.setPrefHeight(220);
+        historialListView.setMinHeight(180);
+        historialListView.setPlaceholder(new Label("Aún no hay inferencias"));
         VBox.setVgrow(historialListView, Priority.ALWAYS);
 
-        HBox infoRow = new HBox(16, knowledgeBox, resumenBox, accionBox);
+        VBox rightColumn = new VBox(12, resumenBox, accionBox);
+        rightColumn.setFillWidth(true);
+        rightColumn.setAlignment(Pos.TOP_LEFT);
+        HBox.setHgrow(rightColumn, Priority.ALWAYS);
+        HBox.setHgrow(resumenBox, Priority.ALWAYS);
+
+        HBox infoRow = new HBox(18, knowledgeBox, rightColumn);
         infoRow.setAlignment(Pos.CENTER_LEFT);
         infoRow.setFillHeight(true);
+        HBox.setHgrow(knowledgeBox, Priority.SOMETIMES);
 
         Label subtitle = new Label("Reglas declarativas + inferencias en tiempo real");
         subtitle.getStyleClass().add("section-subtitle");
@@ -325,7 +340,7 @@ public class TrafficLightApp extends Application {
     }
 
     private double secondsPerState(double speedFactor) {
-        double clamped = Math.max(0.6, Math.min(5.0, speedFactor));
+        double clamped = Math.max(0.6, Math.min(6.0, speedFactor));
         return 3.0 / clamped;
     }
 
@@ -378,11 +393,11 @@ public class TrafficLightApp extends Application {
     }
 
     private Slider createSpeedSlider() {
-        Slider slider = new Slider(0.8, 4.8, 1.2);
+        Slider slider = new Slider(0.8, 6.0, 1.4);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(0.4);
-        slider.setMinorTickCount(3);
+        slider.setMajorTickUnit(0.5);
+        slider.setMinorTickCount(4);
         slider.setBlockIncrement(0.1);
         slider.valueProperty().addListener((obs, oldVal, newVal) -> rebuildTimelineWithDuration(secondsPerState(newVal.doubleValue())));
         return slider;
@@ -477,7 +492,7 @@ public class TrafficLightApp extends Application {
             {
                 label.setWrapText(true);
                 label.getStyleClass().add("list-cell-label");
-                label.setMaxWidth(Double.MAX_VALUE);
+                label.maxWidthProperty().bind(listView.widthProperty().subtract(26));
                 setPrefWidth(0);
             }
 
@@ -488,18 +503,18 @@ public class TrafficLightApp extends Application {
                     setGraphic(null);
                 } else {
                     label.setText(item);
-                    label.setMaxWidth(listView.getWidth() - 30);
                     setGraphic(label);
                 }
             }
         });
+        listView.widthProperty().addListener((obs, oldW, newW) -> listView.refresh());
         return listView;
     }
 
     private Label createValueLabel() {
         Label label = new Label();
         label.setWrapText(true);
-        label.setMaxWidth(320);
+        label.setMaxWidth(440);
         return label;
     }
 
