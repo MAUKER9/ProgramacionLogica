@@ -13,6 +13,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.Slider;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
@@ -130,6 +131,8 @@ public class TrafficLightApp extends Application {
         Label title = titledLabel("Simulador de Semáforo");
         Label subtitle = new Label("Simulación, lógica declarativa y mini-juego de reacción en una sola interfaz moderna.");
         subtitle.getStyleClass().add("subtitle");
+        subtitle.setWrapText(true);
+        subtitle.setMaxWidth(920);
 
         HBox badges = new HBox(10,
                 badge("Programación funcional"),
@@ -211,27 +214,30 @@ public class TrafficLightApp extends Application {
         evaluarButton.getStyleClass().add("primary-button");
         evaluarButton.setOnAction(event -> evaluarAccionSeleccionada());
 
-        logicLightLabel = new Label();
-        logicActionLabel = new Label();
-        logicResultLabel = new Label();
-        logicRuleLabel = new Label();
+        logicLightLabel = createValueLabel();
+        logicActionLabel = createValueLabel();
+        logicResultLabel = createValueLabel();
+        logicRuleLabel = createValueLabel();
         logicLightLabel.getStyleClass().add("value");
         logicActionLabel.getStyleClass().add("value");
         logicResultLabel.getStyleClass().add("value");
         logicRuleLabel.getStyleClass().add("value");
+        logicRuleLabel.setWrapText(true);
+        logicRuleLabel.setMaxWidth(320);
 
         ObservableList<String> conocimiento = FXCollections.observableArrayList();
         lightRules.getReglas().forEach(regla -> conocimiento.add(
-                regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado()));
+                regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado()
+                        + " — " + regla.descripcion()));
 
-        ListView<String> knowledgeListView = new ListView<>(conocimiento);
-        knowledgeListView.setPrefHeight(180);
+        ListView<String> knowledgeListView = createWrappedListView(conocimiento);
+        knowledgeListView.setPrefHeight(220);
 
         VBox knowledgeBox = new VBox(8,
                 new Label("Base de conocimiento declarativa"),
                 knowledgeListView);
         knowledgeBox.getStyleClass().add("knowledge-box");
-        knowledgeBox.setPrefWidth(300);
+        knowledgeBox.setPrefWidth(360);
 
         GridPane detalleGrid = new GridPane();
         detalleGrid.setHgap(12);
@@ -250,7 +256,7 @@ public class TrafficLightApp extends Application {
                 new Label("Detalle de inferencia"),
                 detalleGrid);
         resumenBox.getStyleClass().add("info-box");
-        resumenBox.setPrefWidth(360);
+        resumenBox.setPrefWidth(380);
 
         VBox accionBox = new VBox(10,
                 new Label("Acción"),
@@ -260,8 +266,8 @@ public class TrafficLightApp extends Application {
         accionBox.getStyleClass().add("info-box");
         accionBox.setPrefWidth(240);
 
-        ListView<String> historialListView = new ListView<>(historialInferencias);
-        historialListView.setPrefHeight(180);
+        ListView<String> historialListView = createWrappedListView(historialInferencias);
+        historialListView.setPrefHeight(200);
         VBox.setVgrow(historialListView, Priority.ALWAYS);
 
         HBox infoRow = new HBox(16, knowledgeBox, resumenBox, accionBox);
@@ -319,7 +325,7 @@ public class TrafficLightApp extends Application {
     }
 
     private double secondsPerState(double speedFactor) {
-        double clamped = Math.max(0.5, Math.min(4.0, speedFactor));
+        double clamped = Math.max(0.6, Math.min(5.0, speedFactor));
         return 3.0 / clamped;
     }
 
@@ -372,11 +378,11 @@ public class TrafficLightApp extends Application {
     }
 
     private Slider createSpeedSlider() {
-        Slider slider = new Slider(0.7, 3.5, 1.0);
+        Slider slider = new Slider(0.8, 4.8, 1.2);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(0.5);
-        slider.setMinorTickCount(4);
+        slider.setMajorTickUnit(0.4);
+        slider.setMinorTickCount(3);
         slider.setBlockIncrement(0.1);
         slider.valueProperty().addListener((obs, oldVal, newVal) -> rebuildTimelineWithDuration(secondsPerState(newVal.doubleValue())));
         return slider;
@@ -462,6 +468,39 @@ public class TrafficLightApp extends Application {
         label.getStyleClass().add("caption");
         valueLabel.getStyleClass().add("value");
         return new VBox(2, label, valueLabel);
+    }
+
+    private ListView<String> createWrappedListView(ObservableList<String> items) {
+        ListView<String> listView = new ListView<>(items);
+        listView.setCellFactory(list -> new ListCell<>() {
+            private final Label label = new Label();
+            {
+                label.setWrapText(true);
+                label.getStyleClass().add("list-cell-label");
+                label.setMaxWidth(Double.MAX_VALUE);
+                setPrefWidth(0);
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    label.setText(item);
+                    label.setMaxWidth(listView.getWidth() - 30);
+                    setGraphic(label);
+                }
+            }
+        });
+        return listView;
+    }
+
+    private Label createValueLabel() {
+        Label label = new Label();
+        label.setWrapText(true);
+        label.setMaxWidth(320);
+        return label;
     }
 
     private Label badge(String text) {

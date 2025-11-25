@@ -148,6 +148,11 @@
     -fx-text-fill: #e5e9f2;
 }
 
+.list-cell-label {
+    -fx-text-fill: #e5e9f2;
+    -fx-padding: 6 8 6 8;
+}
+
 .list-view .list-cell:filled:selected, .list-view .list-cell:filled:selected:hover {
     -fx-background-color: rgba(79,138,247,0.2);
     -fx-text-fill: white;
