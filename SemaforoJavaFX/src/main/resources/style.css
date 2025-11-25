@@ -143,10 +143,35 @@
     -fx-background-radius: 10;
 }
 
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: #e5e9f2;
+}
+
+.list-view .list-cell:filled:selected, .list-view .list-cell:filled:selected:hover {
+    -fx-background-color: rgba(79,138,247,0.2);
+    -fx-text-fill: white;
+}
+
 .combo-box {
     -fx-background-radius: 8;
     -fx-border-radius: 8;
     -fx-background-color: #1a1f2b;
     -fx-border-color: rgba(255,255,255,0.1);
     -fx-text-fill: #f3f6ff;
+}
+
+.section-subtitle {
+    -fx-text-fill: #aeb8cc;
+    -fx-font-size: 13px;
+}
+
+.info-grid {
+    -fx-background-color: rgba(255,255,255,0.02);
+    -fx-border-color: rgba(255,255,255,0.07);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-hgap: 10;
+    -fx-vgap: 6;
 }

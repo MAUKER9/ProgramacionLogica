@@ -17,6 +17,7 @@ import javafx.scene.control.Slider;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -200,24 +201,44 @@ public class TrafficLightApp extends Application {
         logicActionLabel = new Label();
         logicResultLabel = new Label();
         logicRuleLabel = new Label();
+        logicLightLabel.getStyleClass().add("value");
+        logicActionLabel.getStyleClass().add("value");
+        logicResultLabel.getStyleClass().add("value");
+        logicRuleLabel.getStyleClass().add("value");
 
-        VBox knowledgeBox = new VBox(6);
-        knowledgeBox.getChildren().add(new Label("Base de conocimiento declarativa"));
-        lightRules.getReglas().forEach(regla -> knowledgeBox.getChildren().add(new Label(
-                regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado())));
+        ObservableList<String> conocimiento = FXCollections.observableArrayList();
+        lightRules.getReglas().forEach(regla -> conocimiento.add(
+                regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado()));
+
+        ListView<String> knowledgeListView = new ListView<>(conocimiento);
+        knowledgeListView.setPrefHeight(180);
+
+        VBox knowledgeBox = new VBox(8,
+                new Label("Base de conocimiento declarativa"),
+                knowledgeListView);
         knowledgeBox.getStyleClass().add("knowledge-box");
-        knowledgeBox.setPrefWidth(340);
+        knowledgeBox.setPrefWidth(300);
 
-        VBox resumenBox = new VBox(6,
+        GridPane detalleGrid = new GridPane();
+        detalleGrid.setHgap(12);
+        detalleGrid.setVgap(6);
+        detalleGrid.add(rowLabel("Luz actual"), 0, 0);
+        detalleGrid.add(logicLightLabel, 1, 0);
+        detalleGrid.add(rowLabel("Acción seleccionada"), 0, 1);
+        detalleGrid.add(logicActionLabel, 1, 1);
+        detalleGrid.add(rowLabel("Resultado"), 0, 2);
+        detalleGrid.add(logicResultLabel, 1, 2);
+        detalleGrid.add(rowLabel("Regla aplicada"), 0, 3);
+        detalleGrid.add(logicRuleLabel, 1, 3);
+        detalleGrid.getStyleClass().add("info-grid");
+
+        VBox resumenBox = new VBox(10,
                 new Label("Detalle de inferencia"),
-                logicLightLabel,
-                logicActionLabel,
-                logicResultLabel,
-                logicRuleLabel);
+                detalleGrid);
         resumenBox.getStyleClass().add("info-box");
-        resumenBox.setPrefWidth(340);
+        resumenBox.setPrefWidth(360);
 
-        VBox accionBox = new VBox(6,
+        VBox accionBox = new VBox(10,
                 new Label("Acción"),
                 accionComboBox,
                 evaluarButton);
@@ -226,15 +247,19 @@ public class TrafficLightApp extends Application {
         accionBox.setPrefWidth(240);
 
         ListView<String> historialListView = new ListView<>(historialInferencias);
-        historialListView.setPrefHeight(160);
+        historialListView.setPrefHeight(180);
         VBox.setVgrow(historialListView, Priority.ALWAYS);
 
         HBox infoRow = new HBox(16, knowledgeBox, resumenBox, accionBox);
         infoRow.setAlignment(Pos.CENTER_LEFT);
         infoRow.setFillHeight(true);
 
-        VBox logicPanel = new VBox(16,
+        Label subtitle = new Label("Reglas declarativas + inferencias en tiempo real");
+        subtitle.getStyleClass().add("section-subtitle");
+
+        VBox logicPanel = new VBox(12,
                 titledLabel("Programación lógica"),
+                subtitle,
                 infoRow,
                 new Label("Historial de inferencias"),
                 historialListView);
@@ -401,6 +426,12 @@ public class TrafficLightApp extends Application {
     private Label titledLabel(String text) {
         Label label = new Label(text);
         label.getStyleClass().add("heading");
+        return label;
+    }
+
+    private Label rowLabel(String text) {
+        Label label = new Label(text);
+        label.getStyleClass().add("caption");
         return label;
     }
 
