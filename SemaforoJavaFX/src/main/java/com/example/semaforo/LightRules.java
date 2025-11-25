@@ -16,8 +16,18 @@ public class LightRules {
             new Regla(Light.RED, "avanzar", "Infracción", "rojo + avanzar → Infracción"),
             new Regla(Light.GREEN, "avanzar", "Permitido", "verde + avanzar → Permitido"),
             new Regla(Light.YELLOW, "avanzar", "Precaución", "amarillo + avanzar → Precaución"),
+
             new Regla(Light.RED, "esperar", "Correcto", "rojo + esperar → Correcto"),
-            new Regla(Light.GREEN, "esperar", "Correcto", "verde + esperar → Correcto")
+            new Regla(Light.GREEN, "esperar", "Correcto", "verde + esperar → Correcto"),
+            new Regla(Light.YELLOW, "esperar", "Correcto", "amarillo + esperar → Correcto"),
+
+            new Regla(Light.RED, "detenerse", "Correcto", "rojo + detenerse → Correcto"),
+            new Regla(Light.YELLOW, "detenerse", "Seguro", "amarillo + detenerse → Seguro"),
+            new Regla(Light.GREEN, "detenerse", "Precaución", "verde + detenerse → Precaución innecesaria"),
+
+            new Regla(Light.RED, "cruzar", "Infracción", "rojo + cruzar → Infracción"),
+            new Regla(Light.GREEN, "cruzar", "Precaución", "verde + cruzar → Precaución: mirar ambos lados"),
+            new Regla(Light.YELLOW, "cruzar", "Riesgo", "amarillo + cruzar → Riesgo alto")
     );
 
     public Regla evaluarAccion(Light luz, String accion) {

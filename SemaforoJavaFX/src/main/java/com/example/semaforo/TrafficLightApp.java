@@ -38,7 +38,7 @@ public class TrafficLightApp extends Application {
     private Circle redCircle;
     private Circle yellowCircle;
     private Circle greenCircle;
-    private Slider durationSlider;
+    private Slider speedSlider;
     private Label stateLabel;
     private Label statusLabel;
     private Label aciertosLabel;
@@ -62,10 +62,15 @@ public class TrafficLightApp extends Application {
         yellowCircle = createLightCircle(Color.web("#f6c667"));
         greenCircle = createLightCircle(Color.web("#26c281"));
 
-        durationSlider = createDurationSlider();
+        speedSlider = createSpeedSlider();
         Label sliderLabel = new Label();
         sliderLabel.getStyleClass().add("accent-text");
-        sliderLabel.textProperty().bind(durationSlider.valueProperty().asString("Segundos por luz: %.1f"));
+        sliderLabel.textProperty().bind(
+                javafx.beans.binding.Bindings.createStringBinding(() -> {
+                    double speed = speedSlider.getValue();
+                    double seconds = secondsPerState(speed);
+                    return String.format("Velocidad: %.1fx · %.1f s por luz", speed, seconds);
+                }, speedSlider.valueProperty()));
 
         HBox controlButtons = createControls();
         VBox trafficLightBox = createTrafficLightBox();
@@ -75,7 +80,7 @@ public class TrafficLightApp extends Application {
                 buildContextRow(),
                 trafficLightBox,
                 sliderLabel,
-                durationSlider,
+                speedSlider,
                 controlButtons,
                 buildStatusRow());
         simulationPanel.getStyleClass().add("panel");
@@ -156,7 +161,16 @@ public class TrafficLightApp extends Application {
         Label modeInfo = new Label("Cronometrado con Timeline");
         modeInfo.getStyleClass().add("stat-chip");
 
-        HBox row = new HBox(10, cycleInfo, modeInfo);
+        Label speedInfo = new Label();
+        speedInfo.getStyleClass().add("stat-chip");
+        speedInfo.textProperty().bind(
+                javafx.beans.binding.Bindings.createStringBinding(() -> {
+                    double speed = speedSlider.getValue();
+                    double seconds = secondsPerState(speed);
+                    return String.format("Velocidad %.1fx (%.1f s)", speed, seconds);
+                }, speedSlider.valueProperty()));
+
+        HBox row = new HBox(10, cycleInfo, modeInfo, speedInfo);
         row.setAlignment(Pos.CENTER_LEFT);
         return row;
     }
@@ -301,11 +315,16 @@ public class TrafficLightApp extends Application {
     }
 
     private void configureTimeline() {
-        timeline = createTimeline(durationSlider.getValue());
+        timeline = createTimeline(secondsPerState(speedSlider.getValue()));
+    }
+
+    private double secondsPerState(double speedFactor) {
+        double clamped = Math.max(0.5, Math.min(4.0, speedFactor));
+        return 3.0 / clamped;
     }
 
     private Timeline createTimeline(double secondsPerState) {
-        KeyFrame frame = new KeyFrame(Duration.seconds(secondsPerState), event -> {
+        KeyFrame frame = new KeyFrame(Duration.seconds(Math.max(0.3, secondsPerState)), event -> {
             currentLight = trafficLightLogic.nextState(currentLight);
             gameLogic.onLightChange(currentLight, System.currentTimeMillis());
             updateLightColors();
@@ -333,6 +352,7 @@ public class TrafficLightApp extends Application {
     }
 
     private void startTimeline() {
+        rebuildTimelineWithDuration(secondsPerState(speedSlider.getValue()));
         if (timeline == null) {
             configureTimeline();
         }
@@ -351,13 +371,14 @@ public class TrafficLightApp extends Application {
         updateScoreLabels();
     }
 
-    private Slider createDurationSlider() {
-        Slider slider = new Slider(1, 10, 3);
+    private Slider createSpeedSlider() {
+        Slider slider = new Slider(0.7, 3.5, 1.0);
         slider.setShowTickLabels(true);
         slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(1);
-        slider.setBlockIncrement(0.5);
-        slider.valueProperty().addListener((obs, oldVal, newVal) -> rebuildTimelineWithDuration(newVal.doubleValue()));
+        slider.setMajorTickUnit(0.5);
+        slider.setMinorTickCount(4);
+        slider.setBlockIncrement(0.1);
+        slider.valueProperty().addListener((obs, oldVal, newVal) -> rebuildTimelineWithDuration(secondsPerState(newVal.doubleValue())));
         return slider;
     }
 
@@ -419,7 +440,8 @@ public class TrafficLightApp extends Application {
         logicRuleLabel.setText("Regla aplicada: " + regla.descripcion());
 
         if (registrarHistorial) {
-            historialInferencias.add("[Luz: " + currentLight + ", Acción: " + regla.accion() + "] → " + regla.resultado());
+            historialInferencias.add("[Luz: " + currentLight + ", Acción: " + regla.accion()
+                    + "] → " + regla.resultado() + " | " + regla.descripcion());
         }
     }
 
