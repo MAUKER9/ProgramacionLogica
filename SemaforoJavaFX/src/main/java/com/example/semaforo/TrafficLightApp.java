@@ -86,7 +86,14 @@ public class TrafficLightApp extends Application {
         root.setAlignment(Pos.TOP_CENTER);
         root.setPadding(new Insets(20));
 
-        Scene scene = new Scene(root, 960, 560);
+        var scrollPane = new javafx.scene.control.ScrollPane(root);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setPadding(new Insets(10));
+        scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        Scene scene = new Scene(scrollPane, 1080, 720);
         scene.setFill(Color.web("#0f1116"));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style.css")).toExternalForm());
 
@@ -149,6 +156,12 @@ public class TrafficLightApp extends Application {
         logicResultLabel = new Label();
         logicRuleLabel = new Label();
 
+        VBox knowledgeBox = new VBox(4);
+        knowledgeBox.getChildren().add(new Label("Base de conocimiento declarativa:"));
+        lightRules.getReglas().forEach(regla -> knowledgeBox.getChildren().add(new Label(
+                regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado())));
+        knowledgeBox.getStyleClass().add("knowledge-box");
+
         VBox accionBox = new VBox(6,
                 new Label("Acción"),
                 accionComboBox,
@@ -164,14 +177,9 @@ public class TrafficLightApp extends Application {
                 logicResultLabel,
                 logicRuleLabel);
 
-        VBox logicPanel = new VBox(12,
+        VBox logicPanel = new VBox(14,
                 titledLabel("Programación lógica"),
-                new Label("Base de conocimiento declarativa:"),
-                new Label("rojo + avanzar → Infracción"),
-                new Label("verde + avanzar → Permitido"),
-                new Label("amarillo + avanzar → Precaución"),
-                new Label("rojo + esperar → Correcto"),
-                new Label("verde + esperar → Correcto"),
+                knowledgeBox,
                 accionBox,
                 infoBox,
                 new Label("Historial de inferencias"),

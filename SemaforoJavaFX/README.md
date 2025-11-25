@@ -42,6 +42,7 @@ El plugin `javafx-maven-plugin` usa la clase principal `com.example.semaforo.Tra
    - Selecciona una acción desde el ComboBox (avanzar, esperar, detenerse, cruzar) y pulsa **Evaluar acción**.
    - `LightRules` usa una base de conocimiento declarativa (`Regla`) y busca con streams la coincidencia de luz + acción; si no existe, devuelve "Desconocido".
    - Se muestran la luz actual, la acción evaluada, el resultado, la descripción de la regla aplicada y un historial (ListView) de inferencias generadas.
+   - El panel lógico incluye el listado completo de reglas visibles y la ventana incorpora scroll para que toda la interfaz sea accesible en pantallas pequeñas.
 
 ## Dónde se usa programación funcional
 - `TrafficLightLogic#nextState` está implementado con una `UnaryOperator<Light>` que, dada una luz, devuelve siempre la siguiente. Es pura porque no depende de estado global ni produce efectos secundarios.

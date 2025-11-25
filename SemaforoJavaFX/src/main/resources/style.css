@@ -60,3 +60,19 @@
 .slider .thumb {
     -fx-background-color: #4f8af7;
 }
+
+.knowledge-box {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-spacing: 4;
+}
+
+.list-view {
+    -fx-background-color: #131824;
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
