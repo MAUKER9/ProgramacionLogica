@@ -39,16 +39,16 @@ El plugin `javafx-maven-plugin` usa la clase principal `com.example.semaforo.Tra
    - Se muestran aciertos, errores y puntaje acumulado en vivo.
 
 3. **Programación lógica (LightRules)**
-   - Ingresa una acción (por ejemplo, `avanzar` o `detenerse`) y pulsa **Evaluar acción**.
-   - `LightRules` consulta reglas estáticas tipo mapa (rojo/avanzar → “Infracción”, verde/avanzar → “Permitido”, amarillo/avanzar → “Precaución”).
-   - El resultado se muestra en la interfaz junto con el estado actual del semáforo.
+   - Selecciona una acción desde el ComboBox (avanzar, esperar, detenerse, cruzar) y pulsa **Evaluar acción**.
+   - `LightRules` usa una base de conocimiento declarativa (`Regla`) y busca con streams la coincidencia de luz + acción; si no existe, devuelve "Desconocido".
+   - Se muestran la luz actual, la acción evaluada, el resultado, la descripción de la regla aplicada y un historial (ListView) de inferencias generadas.
 
 ## Dónde se usa programación funcional
 - `TrafficLightLogic#nextState` está implementado con una `UnaryOperator<Light>` que, dada una luz, devuelve siempre la siguiente. Es pura porque no depende de estado global ni produce efectos secundarios.
 - `GameLogic#calcularPuntaje` es otra función pura: se basa únicamente en el tiempo de reacción que recibe como parámetro.
 
 ## Dónde se usa programación lógica
-- `LightRules` almacena reglas declarativas en mapas inmutables para evaluar combinaciones de luz y acción. `evaluarAccion` retorna la consecuencia (“Permitido”, “Infracción” o “Precaución”) siguiendo esas reglas.
+- `LightRules` almacena una base de conocimiento como lista de `Regla` (luz, acción, resultado, descripción) y la recorre con streams para inferir la consecuencia. El ListView muestra el historial de inferencias realizadas por el usuario.
 
 ## Timeline y ciclo de luces
 - El `Timeline` tiene un `KeyFrame` que se dispara cada *n* segundos (valor del slider) y avanza el estado RED → GREEN → YELLOW → RED usando `TrafficLightLogic`.

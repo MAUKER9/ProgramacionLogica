@@ -6,11 +6,14 @@ import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -38,9 +41,13 @@ public class TrafficLightApp extends Application {
     private Label aciertosLabel;
     private Label erroresLabel;
     private Label puntajeLabel;
-    private Label reglaLabel;
+    private Label logicLightLabel;
+    private Label logicActionLabel;
+    private Label logicResultLabel;
+    private Label logicRuleLabel;
     private Label juegoLabel;
-    private TextField accionInput;
+    private ComboBox<String> accionComboBox;
+    private ObservableList<String> historialInferencias;
 
     public static void main(String[] args) {
         launch(args);
@@ -91,6 +98,7 @@ public class TrafficLightApp extends Application {
         updateLightColors();
         updateStatus();
         updateScoreLabels();
+        actualizarRegla();
     }
 
     private VBox createTrafficLightBox() {
@@ -127,19 +135,47 @@ public class TrafficLightApp extends Application {
     }
 
     private VBox createLogicPanel() {
-        accionInput = new TextField("avanzar");
-        Button evaluarButton = new Button("Evaluar acción");
-        evaluarButton.setOnAction(event -> actualizarRegla());
-        reglaLabel = new Label();
+        historialInferencias = FXCollections.observableArrayList();
+        accionComboBox = new ComboBox<>(FXCollections.observableArrayList(
+                "avanzar", "esperar", "detenerse", "cruzar"));
+        accionComboBox.getSelectionModel().selectFirst();
 
-        HBox accionBox = new HBox(8, new Label("Acción:"), accionInput, evaluarButton);
+        Button evaluarButton = new Button("Evaluar acción");
+        evaluarButton.getStyleClass().add("primary-button");
+        evaluarButton.setOnAction(event -> evaluarAccionSeleccionada());
+
+        logicLightLabel = new Label();
+        logicActionLabel = new Label();
+        logicResultLabel = new Label();
+        logicRuleLabel = new Label();
+
+        VBox accionBox = new VBox(6,
+                new Label("Acción"),
+                accionComboBox,
+                evaluarButton);
         accionBox.setAlignment(Pos.CENTER_LEFT);
 
-        VBox logicPanel = new VBox(10,
+        ListView<String> historialListView = new ListView<>(historialInferencias);
+        historialListView.setPrefHeight(160);
+
+        VBox infoBox = new VBox(6,
+                logicLightLabel,
+                logicActionLabel,
+                logicResultLabel,
+                logicRuleLabel);
+
+        VBox logicPanel = new VBox(12,
                 titledLabel("Programación lógica"),
-                new Label("Reglas: rojo/avanzar → Infracción, verde/avanzar → Permitido, amarillo/avanzar → Precaución"),
+                new Label("Base de conocimiento declarativa:"),
+                new Label("rojo + avanzar → Infracción"),
+                new Label("verde + avanzar → Permitido"),
+                new Label("amarillo + avanzar → Precaución"),
+                new Label("rojo + esperar → Correcto"),
+                new Label("verde + esperar → Correcto"),
                 accionBox,
-                reglaLabel);
+                infoBox,
+                new Label("Historial de inferencias"),
+                historialListView);
         logicPanel.getStyleClass().add("panel");
         logicPanel.setAlignment(Pos.CENTER_LEFT);
         return logicPanel;
@@ -277,10 +313,26 @@ public class TrafficLightApp extends Application {
         puntajeLabel.setText("Puntaje: " + gameLogic.getPuntajeTotal());
     }
 
+    private void evaluarAccionSeleccionada() {
+        evaluarReglaActual(true);
+    }
+
     private void actualizarRegla() {
-        String accion = accionInput.getText();
-        String resultado = lightRules.evaluarAccion(currentLight, accion);
-        reglaLabel.setText("Resultado acción '" + accion + "' con luz " + currentLight + ": " + resultado);
+        evaluarReglaActual(false);
+    }
+
+    private void evaluarReglaActual(boolean registrarHistorial) {
+        String accionSeleccionada = accionComboBox.getSelectionModel().getSelectedItem();
+        LightRules.Regla regla = lightRules.evaluarAccion(currentLight, accionSeleccionada);
+
+        logicLightLabel.setText("Luz actual: " + currentLight);
+        logicActionLabel.setText("Acción seleccionada: " + regla.accion());
+        logicResultLabel.setText("Resultado: " + regla.resultado());
+        logicRuleLabel.setText("Regla aplicada: " + regla.descripcion());
+
+        if (registrarHistorial) {
+            historialInferencias.add("[Luz: " + currentLight + ", Acción: " + regla.accion() + "] → " + regla.resultado());
+        }
     }
 
     private Label titledLabel(String text) {
