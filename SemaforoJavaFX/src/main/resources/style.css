@@ -4,6 +4,19 @@
     -fx-text-fill: #f8f9fb;
 }
 
+.app-scroll {
+    -fx-background: #0f1116;
+    -fx-background-color: transparent;
+}
+
+.app-scroll > .viewport {
+    -fx-background-color: #0f1116;
+}
+
+.app-scroll > .corner {
+    -fx-background-color: #0f1116;
+}
+
 .panel {
    -fx-background-color: rgba(255,255,255,0.04);
    -fx-border-color: rgba(255,255,255,0.12);
@@ -68,6 +81,15 @@
     -fx-background-radius: 10;
     -fx-padding: 10;
     -fx-spacing: 4;
+}
+
+.info-box {
+    -fx-background-color: rgba(255,255,255,0.03);
+    -fx-border-color: rgba(255,255,255,0.07);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10;
+    -fx-spacing: 6;
 }
 
 .list-view {

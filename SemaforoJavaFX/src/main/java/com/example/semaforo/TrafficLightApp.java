@@ -75,25 +75,33 @@ public class TrafficLightApp extends Application {
                 controlButtons,
                 buildStatusRow());
         simulationPanel.getStyleClass().add("panel");
+        simulationPanel.setPrefWidth(420);
 
         VBox gamePanel = createGamePanel();
+        gamePanel.setPrefWidth(320);
         VBox logicPanel = createLogicPanel();
 
         HBox content = new HBox(18, simulationPanel, gamePanel);
         content.setAlignment(Pos.TOP_CENTER);
 
-        VBox root = new VBox(18, titledLabel("Simulador de Semáforo"), content, logicPanel);
+        VBox rootContent = new VBox(18, titledLabel("Simulador de Semáforo"), content, logicPanel);
+        rootContent.setAlignment(Pos.TOP_CENTER);
+        rootContent.setPadding(new Insets(20));
+        rootContent.setMaxWidth(1180);
+
+        VBox root = new VBox(rootContent);
         root.setAlignment(Pos.TOP_CENTER);
-        root.setPadding(new Insets(20));
+        root.setPadding(new Insets(24));
 
         var scrollPane = new javafx.scene.control.ScrollPane(root);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
-        scrollPane.setPadding(new Insets(10));
+        scrollPane.setPadding(new Insets(0));
         scrollPane.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.getStyleClass().add("app-scroll");
 
-        Scene scene = new Scene(scrollPane, 1080, 720);
+        Scene scene = new Scene(scrollPane, 1220, 780);
         scene.setFill(Color.web("#0f1116"));
         scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/style.css")).toExternalForm());
 
@@ -156,36 +164,44 @@ public class TrafficLightApp extends Application {
         logicResultLabel = new Label();
         logicRuleLabel = new Label();
 
-        VBox knowledgeBox = new VBox(4);
+        VBox knowledgeBox = new VBox(6);
         knowledgeBox.getChildren().add(new Label("Base de conocimiento declarativa:"));
         lightRules.getReglas().forEach(regla -> knowledgeBox.getChildren().add(new Label(
                 regla.luz().name().toLowerCase() + " + " + regla.accion() + " → " + regla.resultado())));
         knowledgeBox.getStyleClass().add("knowledge-box");
+        knowledgeBox.setPrefWidth(320);
+
+        VBox resumenBox = new VBox(6,
+                new Label("Detalle de inferencia"),
+                logicLightLabel,
+                logicActionLabel,
+                logicResultLabel,
+                logicRuleLabel);
+        resumenBox.getStyleClass().add("info-box");
+        resumenBox.setPrefWidth(320);
 
         VBox accionBox = new VBox(6,
                 new Label("Acción"),
                 accionComboBox,
                 evaluarButton);
         accionBox.setAlignment(Pos.CENTER_LEFT);
+        accionBox.getStyleClass().add("info-box");
+        accionBox.setPrefWidth(260);
 
         ListView<String> historialListView = new ListView<>(historialInferencias);
         historialListView.setPrefHeight(160);
 
-        VBox infoBox = new VBox(6,
-                logicLightLabel,
-                logicActionLabel,
-                logicResultLabel,
-                logicRuleLabel);
+        HBox infoRow = new HBox(16, knowledgeBox, resumenBox, accionBox);
+        infoRow.setAlignment(Pos.CENTER_LEFT);
 
         VBox logicPanel = new VBox(14,
                 titledLabel("Programación lógica"),
-                knowledgeBox,
-                accionBox,
-                infoBox,
+                infoRow,
                 new Label("Historial de inferencias"),
                 historialListView);
         logicPanel.getStyleClass().add("panel");
         logicPanel.setAlignment(Pos.CENTER_LEFT);
+        logicPanel.setMaxWidth(Double.MAX_VALUE);
         return logicPanel;
     }
 

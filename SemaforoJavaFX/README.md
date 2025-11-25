@@ -30,7 +30,7 @@ El plugin `javafx-maven-plugin` usa la clase principal `com.example.semaforo.Tra
    - Pulsa **Iniciar** para arrancar el `Timeline`. Cambia de RED → GREEN → YELLOW en bucle.
    - Ajusta el **Slider** para definir los segundos por estado; el `Timeline` se reconstruye con la nueva duración.
    - Botones **Pausar** y **Reanudar** controlan la animación.
-   - El panel oscuro muestra las tres luces en un contenedor que simula el armazón del semáforo.
+   - El panel oscuro muestra las tres luces en un contenedor que simula el armazón del semáforo, con la interfaz centrada y un ancho fijo para mantener todo visible.
 
 2. **Modo juego (“¡YA!”)**
    - Cuando creas que el semáforo está en verde, pulsa el botón **¡YA!**.
